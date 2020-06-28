@@ -287,7 +287,7 @@ fn main() -> anyhow::Result<()> {
 
     let conn = Arc::new(Mutex::new(conn));
 
-    rouille::start_server("127.0.0.1:6699", move |request| {
+    rouille::start_server("0.0.0.0:6699", move |request| {
         rouille::log(&request, io::stdout(), || {
             if let Some(e) = request.remove_prefix("/e") {
                 return rouille::match_assets(&e, "e");
