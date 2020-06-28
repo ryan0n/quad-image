@@ -63,7 +63,7 @@ fn load_image(data: &[u8], format: ImageFormat) -> Result<image::DynamicImage> {
 }
 
 fn temp_file() -> Result<PersistableTempFile> {
-    Ok(PersistableTempFile::new_in("e").with_context(|| anyhow!("temp file"))?)
+    Ok(PersistableTempFile::new_in("t").with_context(|| anyhow!("temp file"))?)
 }
 
 fn handle_gif(data: &[u8]) -> Result<SavedImage> {
@@ -169,9 +169,11 @@ fn write_out(mut temp: PersistableTempFile, ext: &str) -> Result<SavedImage> {
 
     for _ in 0..32768 {
         let rand_bit: String = Alphanumeric.sample_iter(&mut rand).take(10).collect();
+        let cand_tmp = format!("t/{}.{}", rand_bit, ext);
         let cand = format!("e/{}.{}", rand_bit, ext);
-        temp = match temp.persist_noclobber(&cand) {
+        temp = match temp.persist_noclobber(&cand_tmp) {
             Ok(_) => {
+                std::fs::copy(&cand_tmp, &cand);
                 make_readable(&cand)?;
                 return Ok(cand);
             }
